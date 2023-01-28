@@ -1,9 +1,9 @@
+require('dotenv').config();
 const neo4j = require('neo4j-driver');
-const uri = process.env.DB_URI;
-const user = process.env.DB_USERNAME;
-const password = process.env.DB_PASSWORD;
-
-const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
+const driver = neo4j.driver(
+	process.env.DB_URI,
+	neo4j.auth.basic(process.env.DB_USER, process.env.DB_PASSWORD)
+);
 
 module.exports.getRegister = (req, res) => {
 	null;
