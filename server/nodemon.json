@@ -1,0 +1,10 @@
+// Done in order to be able to run swagger.js with nodemon without it constantly restarting
+
+{
+	"verbose": true,
+	"ignore": ["swagger-output.json"],
+	"execMap": {
+		"rb": "ruby",
+		"pde": "processing --sketch={{pwd}} --run"
+	}
+}
