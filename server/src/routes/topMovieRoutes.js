@@ -1,11 +1,14 @@
 const express = require('express');
-const { getTopMovies } = require('../controllers/topMoviesController');
+const {
+	getTopMoviesLoggedOut,
+	getTopMoviesLoggedIn,
+} = require('../controllers/topMoviesController');
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get('/loggedout', async (req, res) => {
 	try {
-		const response = await getTopMovies();
+		const response = await getTopMoviesLoggedOut();
 		return res.status(200).json(response);
 	} catch (err) {
 		console.error(err.message);
@@ -14,3 +17,13 @@ router.get('/', async (req, res) => {
 });
 
 module.exports = router;
+
+router.get('/loggedin', async (req, res) => {
+	try {
+		const response = await getTopMoviesLoggedIn();
+		return res.status(200).json(response);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json(err.message);
+	}
+});
