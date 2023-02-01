@@ -29,7 +29,7 @@ exports.getMovies = async (req, res) => {
 	}
 };
 
-exports.getMoviesSearch = async (title, genre, actor) => {
+exports.getMoviesSearch = async (title, genre, actor, sort) => {
 	try {
 		const result = await session.run(
 			`MATCH (m:Movie)<-[r:RATED]-(u:User)
@@ -43,7 +43,9 @@ exports.getMoviesSearch = async (title, genre, actor) => {
 		    WITH m, ratings, g, collect(p.name) as actors
 		    MATCH (m)<-[d:DIRECTED]-(director:Person)
 		    WITH m, ratings, g, actors, collect(director.name) as directors
-		    RETURN DISTINCT m.title as title, m.poster_image as poster, m.tagline as tagline, m.released as released, g.name as genre, actors, directors, ratings ORDER BY ratings DESC`
+		    RETURN DISTINCT m.title as title, m.poster_image as poster, m.tagline as tagline, m.released as released, g.name as genre, actors, directors, ratings ORDER BY ${
+				sort == '' ? 'ratings' : sort
+			}`
 		);
 		const movies = result.records.map((record) => ({
 			title: record.get('title'),

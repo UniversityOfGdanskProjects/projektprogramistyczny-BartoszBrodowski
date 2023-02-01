@@ -15,8 +15,8 @@ router.get('/all', async (req, res) => {
 
 router.get('/all/search', async (req, res) => {
 	try {
-		const { title = '', genre = '', actor = '' } = req.query;
-		const response = await getMoviesSearch(title, genre, actor);
+		const { title = '', genre = '', actor = '', sort = 'ratings' } = req.query;
+		const response = await getMoviesSearch(title, genre, actor, sort);
 		return res.status(200).json(response);
 	} catch (err) {
 		console.error(err.message);
