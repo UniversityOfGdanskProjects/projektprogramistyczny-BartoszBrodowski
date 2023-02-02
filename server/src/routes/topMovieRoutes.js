@@ -16,8 +16,6 @@ router.get('/loggedout', async (req, res) => {
 	}
 });
 
-module.exports = router;
-
 router.get('/loggedin', async (req, res) => {
 	try {
 		const response = await getTopMoviesLoggedIn();
@@ -27,3 +25,5 @@ router.get('/loggedin', async (req, res) => {
 		res.status(500).json(err.message);
 	}
 });
+
+module.exports = router;

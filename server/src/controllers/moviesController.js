@@ -1,6 +1,6 @@
 const session = require('../config/connector');
 
-exports.getMovies = async (req, res) => {
+exports.getMovies = async () => {
 	try {
 		const result = await session.run(
 			`MATCH (m:Movie)<-[r:RATED]-(u:User)
@@ -32,20 +32,16 @@ exports.getMovies = async (req, res) => {
 exports.getMoviesSearch = async (title, genre, actor, sort) => {
 	try {
 		const result = await session.run(
-			`MATCH (m:Movie)<-[r:RATED]-(u:User)
-		    WHERE m.title =~ '(?i).*${title}.*'
-		    WITH m, avg(r.rating) as ratings
-		    MATCH (m)-[t:TYPE]->(g:Genre)
-			WHERE g.name =~ '(?i).*${genre}.*'
-		    WITH m, ratings, g
-		    MATCH (m)<-[a:ACTED_IN]-(p:Person)
-			WHERE p.name =~ '(?i).*${actor}.*'
-		    WITH m, ratings, g, collect(p.name) as actors
-		    MATCH (m)<-[d:DIRECTED]-(director:Person)
-		    WITH m, ratings, g, actors, collect(director.name) as directors
-		    RETURN DISTINCT m.title as title, m.poster_image as poster, m.tagline as tagline, m.released as released, g.name as genre, actors, directors, ratings ORDER BY ${
-				sort == '' ? 'ratings' : sort
-			}`
+			`MATCH (g:Genre)<-[t:TYPE]-(m:Movie)<-[r:RATED]-(u:User), 
+			(m)<-[a:ACTED_IN]-(p:Person), 
+			(m)<-[d:DIRECTED]-(director:Person)
+		    WHERE (m.title =~ '(?i).*${title}.*') 
+			AND (g.name =~ '(?i).*${genre}.*') 
+			AND (p.name =~ '(?i).*${actor}.*')
+			WITH m.title as title, g.name as genre, avg(r.rating) as ratings, collect(DISTINCT p.name) as actors, m.poster_image as poster, m.tagline as tagline, m.released as released, collect(DISTINCT director.name) as directors
+		    RETURN title, genre, ratings, actors, poster, tagline, released, directors ORDER BY ${
+				sort == '' ? 'ratings' : sort.toLowerCase()
+			} DESC`
 		);
 		const movies = result.records.map((record) => ({
 			title: record.get('title'),
