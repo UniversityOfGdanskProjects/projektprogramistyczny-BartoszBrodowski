@@ -6,7 +6,7 @@ exports.commentMovie = async (email, title, comment) => {
 		if (user) {
 			const result = await session.run(
 				`MATCH (m:Movie { title: $title }), (u:User { email: $email })
-                MERGE (m)<-[c:COMMENTED]-(u)
+                CREATE (m)<-[c:COMMENTED]-(u)
                 SET c.comment = $comment
                 RETURN m.title as title, c.comment as comment`,
 				{ email, title, comment }
