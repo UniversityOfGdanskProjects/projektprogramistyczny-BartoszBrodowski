@@ -6,6 +6,7 @@ const topMovieRoutes = require('./src/routes/topMovieRoutes');
 const moviesRoutes = require('./src/routes/moviesRoutes');
 const authRoutes = require('./src/routes/authRoutes');
 const rateRoutes = require('./src/routes/rateMovieRoutes');
+const addMovieRoutes = require('./src/routes/addMovieRoutes');
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use('/movies/top', topMovieRoutes);
 app.use('/movies', moviesRoutes);
 app.use('/auth', authRoutes);
 app.use('/rate', rateRoutes);
+app.use('/add/movie', addMovieRoutes);
 
 app.listen(8000, () => {
 	console.log('Server is running on port 8000');

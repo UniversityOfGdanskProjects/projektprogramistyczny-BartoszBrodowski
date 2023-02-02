@@ -9,11 +9,10 @@ exports.rateMovie = async (title, email, rating) => {
             RETURN m.title as title, r.rating as rating`,
 			{ title, email, rating }
 		);
-		const movie = result.records.map((record) => ({
+		return result.records.map((record) => ({
 			title: record.get('title'),
 			rating: record.get('rating'),
 		}));
-		return movie;
 	} catch (err) {
 		throw new Error(err);
 	}
