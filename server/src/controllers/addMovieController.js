@@ -31,7 +31,7 @@ exports.addMovie = async (
                 MERGE (g:Genre { name: genre })
                 MERGE (m)-[:TYPE]->(g)
                 RETURN m`,
-				{ poster_image, released, tagline, title, directors, actors, genre }
+				{ email, poster_image, released, tagline, title, directors, actors, genre }
 			);
 			const movie = result.summary.query.parameters;
 			return movie;
