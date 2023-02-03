@@ -19,7 +19,7 @@ exports.getTopMoviesLoggedOut = async () => {
 	}
 };
 
-exports.getTopMoviesLoggedIn = async (req, res) => {
+exports.getTopMoviesLoggedIn = async () => {
 	try {
 		const result = await session.run(
 			`MATCH (m:Movie)<-[r:RATED]-(u:User)
@@ -30,7 +30,7 @@ exports.getTopMoviesLoggedIn = async (req, res) => {
 			WITH m, r, g, collect(p.name) as actors
 			MATCH (m)<-[d:DIRECTED]-(director:Person)
 			WITH m, r, g, actors, director
-			RETURN DISTINCT m.title as title, m.poster_image as poster, m.tagline as tagline, m.released as released, g.name as genre, actors, director.name as director, avg(r.rating) as rating, count(r.rating) as votes, m.image_urls as image_gallery ORDER BY rating DESC LIMIT 25`
+			RETURN DISTINCT m.title as title, m.poster_image as poster, m.tagline as tagline, m.released as released, g.name as genre, actors, director.name as director, apoc.coll.avg(r.rating) as rating, count(r.rating) as votes, m.image_urls as image_gallery ORDER BY rating DESC LIMIT 25`
 		);
 		const topMoviesTest = result.records.map((record) => ({
 			title: record.get('title'),
