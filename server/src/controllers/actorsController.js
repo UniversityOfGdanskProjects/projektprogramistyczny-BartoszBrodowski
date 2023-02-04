@@ -13,3 +13,25 @@ exports.getActorsLatestMovie = async (id) => {
 		throw new Error(err);
 	}
 };
+
+exports.updateActorsOnMovie = async (movieId, actorsList) => {
+	try {
+		const movie = await session.run('MATCH (m:Movie { id: $movieId }) RETURN m', { movieId });
+		if (movie.records[0]) {
+			await session.run(
+				`MATCH (m:Movie { id: $movieId })-[a:ACTED_IN]-(act:Person)
+				DETACH DELETE a
+				WITH m
+				UNWIND $actorsList AS actor
+				MERGE (newActor:Person { name: actor })
+				MERGE (m)<-[:ACTED_IN]-(newActor)`,
+				{ movieId, actorsList }
+			);
+			return { message: "Actors' list has been updated" };
+		} else {
+			return { message: "Movie doesn't exist" };
+		}
+	} catch (err) {
+		throw new Error(err);
+	}
+};

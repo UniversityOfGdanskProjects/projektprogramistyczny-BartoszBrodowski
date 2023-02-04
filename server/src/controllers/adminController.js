@@ -73,7 +73,7 @@ exports.adminUpdateMovie = async (
 ) => {
 	try {
 		const user = await session.run('MATCH (u:User { id: $userId }) RETURN u', { userId });
-		if (user) {
+		if (user.records[0]) {
 			if (user.records[0]._fields[0].properties.role === 'ADMIN') {
 				await session.run(
 					`MATCH (m:Movie { id: $movieId, addedBy: $userId })
@@ -126,7 +126,7 @@ exports.adminUpdateMovie = async (
 exports.adminUpdateComment = async (userId, commentId, comment) => {
 	try {
 		const user = await session.run('MATCH (u:User { id: $userId }) RETURN u', { userId });
-		if (user) {
+		if (user.records[0]) {
 			if (user.records[0]._fields[0].properties.role === 'ADMIN') {
 				await session.run(
 					`MATCH (u:User)-[c:COMMENTED]->(m:Movie)
@@ -158,7 +158,7 @@ exports.adminAddMovie = async (
 ) => {
 	try {
 		const user = await session.run('MATCH (u:User { id: $userId }) RETURN u', { userId });
-		if (user) {
+		if (user.records[0]) {
 			if (user.records[0]._fields[0].properties.role === 'ADMIN') {
 				await session.run(
 					`CREATE (m:Movie { id: apoc.create.uuid(), poster_image: $poster_image, released: $released, tagline: $tagline, title: $title, addedBy: $userId })
@@ -200,7 +200,7 @@ exports.adminAddMovie = async (
 exports.adminAddComment = async (userId, movieId, comment) => {
 	try {
 		const user = await session.run('MATCH (u:User { id: $userId }) RETURN u', { userId });
-		if (user) {
+		if (user.records[0]) {
 			if (user.records[0]._fields[0].properties.role === 'ADMIN') {
 				await session.run(
 					`MATCH (u:User { id: $userId }), (m:Movie { id: $movieId })

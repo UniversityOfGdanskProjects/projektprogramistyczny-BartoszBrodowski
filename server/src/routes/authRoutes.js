@@ -21,7 +21,6 @@ router.post('/login', async (req, res) => {
 	try {
 		const { email, password } = req.body;
 		const userCredentials = await login(email, password);
-		await bcrypt.compare(password, userCredentials.password);
 		return res.status(200).json(userCredentials);
 	} catch (err) {
 		console.error(err.message);

@@ -12,7 +12,7 @@ exports.addMovie = async (
 ) => {
 	try {
 		const user = await session.run('MATCH (u:User { id: $userId }) RETURN u', { userId });
-		if (user) {
+		if (user.records[0]) {
 			await session.run(
 				`CREATE (m:Movie { id: apoc.create.uuid(), poster_image: $poster_image, released: $released, tagline: $tagline, title: $title, addedBy: $userId })
                 WITH m
@@ -44,7 +44,7 @@ exports.addMovie = async (
 exports.deleteMovie = async (userId, movieId) => {
 	try {
 		const user = await session.run('MATCH (u:User { id: $userId }) RETURN u', { userId });
-		if (user) {
+		if (user.records[0]) {
 			const result = await session
 				.run(
 					`MATCH (m:Movie { id: $movieId, addedBy: $userId })
@@ -76,8 +76,8 @@ exports.updateMovie = async (
 	genre
 ) => {
 	try {
-		const user = await session.run('MATCH (u:User { email: $userId }) RETURN u', { userId });
-		if (user) {
+		const user = await session.run('MATCH (u:User { id: $userId }) RETURN u', { userId });
+		if (user.records[0]) {
 			const result = await session.run(
 				`MATCH (m:Movie { id: $movieId, addedBy: $userId })
 				SET m.poster_image = $poster_image, m.released = $released, m.tagline = $tagline

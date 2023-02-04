@@ -4,7 +4,7 @@ exports.commentMovie = async (movieId, userId, comment) => {
 	try {
 		const user = await session.run('MATCH (u:User { id: $userId }) RETURN u', { userId });
 		const movie = await session.run('MATCH (m:Movie { id: $movieId }) RETURN m', { movieId });
-		if (user) {
+		if (user.records[0]) {
 			if (movie) {
 				await session.run(
 					`MATCH (m:Movie { id: $movieId }), (u:User { id: $userId })
@@ -17,6 +17,20 @@ exports.commentMovie = async (movieId, userId, comment) => {
 			return Error('Movie not found');
 		}
 		return Error('User not found');
+	} catch (err) {
+		throw new Error(err);
+	}
+};
+
+exports.deleteComment = async (commentId, userId) => {
+	try {
+		await session.run(
+			`MATCH (m:Movie)<-[c:COMMENTED]-(u:User { id: $userId }})
+			WHERE c.id = $comment_id
+			DETACH DELETE c`,
+			{ commentId, userId }
+		);
+		return { message: `Comment with id: ${commentId} has been deleted` };
 	} catch (err) {
 		throw new Error(err);
 	}
