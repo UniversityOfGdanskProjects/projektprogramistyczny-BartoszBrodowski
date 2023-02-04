@@ -75,8 +75,8 @@ router.put('/edit/movie', async (req, res) => {
 
 router.put('/edit/comment', async (req, res) => {
 	try {
-		const { comment_id, user_id, comment } = req.body;
-		const response = await adminUpdateComment(comment_id, user_id, comment);
+		const { userId, commentId, comment } = req.body;
+		const response = await adminUpdateComment(userId, commentId, comment);
 		return res.status(200).json(response);
 	} catch (err) {
 		console.error(err.message);

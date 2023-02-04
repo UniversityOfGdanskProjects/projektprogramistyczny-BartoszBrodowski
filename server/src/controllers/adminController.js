@@ -129,7 +129,7 @@ exports.adminUpdateComment = async (userId, commentId, comment) => {
 		if (user) {
 			if (user.records[0]._fields[0].properties.role === 'ADMIN') {
 				await session.run(
-					`MATCH (u:User { id: $userId })-[c:COMMENTED]->(m:Movie)
+					`MATCH (u:User)-[c:COMMENTED]->(m:Movie)
 					WHERE c.id = $commentId
 					SET c.comment = $comment
 					RETURN c`,
