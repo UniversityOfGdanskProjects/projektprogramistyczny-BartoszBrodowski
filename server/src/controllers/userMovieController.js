@@ -1,11 +1,20 @@
 const session = require('../config/connector');
 
-exports.addMovie = async (id, poster_image, released, tagline, title, directors, actors, genre) => {
+exports.addMovie = async (
+	userId,
+	poster_image,
+	released,
+	tagline,
+	title,
+	directors,
+	actors,
+	genre
+) => {
 	try {
-		const user = await session.run('MATCH (u:User { id: $id }) RETURN u', { id });
+		const user = await session.run('MATCH (u:User { id: $userId }) RETURN u', { userId });
 		if (user) {
 			await session.run(
-				`CREATE (m:Movie { id: apoc.create.uuid(), poster_image: $poster_image, released: $released, tagline: $tagline, title: $title, addedBy: $id })
+				`CREATE (m:Movie { id: apoc.create.uuid(), poster_image: $poster_image, released: $released, tagline: $tagline, title: $title, addedBy: $userId })
                 WITH m
                 MATCH (m)
                 UNWIND $directors AS director
@@ -22,7 +31,7 @@ exports.addMovie = async (id, poster_image, released, tagline, title, directors,
                 MERGE (g:Genre { name: genre })
                 MERGE (m)-[:TYPE]->(g)
                 RETURN m`,
-				{ id, poster_image, released, tagline, title, directors, actors, genre }
+				{ userId, poster_image, released, tagline, title, directors, actors, genre }
 			);
 			return { message: 'Movie has been added' };
 		}
@@ -38,7 +47,7 @@ exports.deleteMovie = async (userId, movieId) => {
 		if (user) {
 			const result = await session
 				.run(
-					`MATCH (m:Movie { id: $movieId })
+					`MATCH (m:Movie { id: $movieId, addedBy: $userId })
 					DETACH DELETE m`,
 					{ userId, movieId }
 				)
@@ -56,7 +65,8 @@ exports.deleteMovie = async (userId, movieId) => {
 };
 
 exports.updateMovie = async (
-	email,
+	userId,
+	movieId,
 	poster_image,
 	released,
 	tagline,
@@ -66,28 +76,44 @@ exports.updateMovie = async (
 	genre
 ) => {
 	try {
-		const user = await session.run('MATCH (u:User { email: $email }) RETURN u', { email });
+		const user = await session.run('MATCH (u:User { email: $userId }) RETURN u', { userId });
 		if (user) {
 			const result = await session.run(
-				`MATCH (m:Movie { title: $title, addedBy: $email })
+				`MATCH (m:Movie { id: $movieId, addedBy: $userId })
 				SET m.poster_image = $poster_image, m.released = $released, m.tagline = $tagline
 				WITH m
-				MATCH (m)
+				MATCH (m)-[dir:DIRECTED]-()
+				DETACH DELETE dir
+				WITH m
 				UNWIND $directors AS director
 				MERGE (d:Person { name: director })
 				MERGE (m)<-[:DIRECTED]-(d)
 				WITH m
-				MATCH (m)
+				MATCH (m)-[act:ACTED_IN]-()
+				DETACH DELETE act
+				WITH m
 				UNWIND $actors AS actor
 				MERGE (a:Person { name: actor })
 				MERGE (m)<-[:ACTED_IN]-(a)
 				WITH m
-				MATCH (m)
+				MATCH (m)-[type:TYPE]-()
+				DETACH DELETE type
+				WITH m
 				UNWIND $genre AS genre
 				MERGE (g:Genre { name: genre })
 				MERGE (m)-[:TYPE]->(g)
 				RETURN m`,
-				{ email, poster_image, released, tagline, title, directors, actors, genre }
+				{
+					userId,
+					movieId,
+					poster_image,
+					released,
+					tagline,
+					title,
+					directors,
+					actors,
+					genre,
+				}
 			);
 			const movie = result.summary.query.parameters;
 			return movie;

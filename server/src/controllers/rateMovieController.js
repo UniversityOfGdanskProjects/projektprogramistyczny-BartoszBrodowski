@@ -1,18 +1,14 @@
 const session = require('../config/connector');
 
-exports.rateMovie = async (title, email, rating) => {
+exports.rateMovie = async (movieId, userId, rating) => {
 	try {
-		const result = await session.run(
-			`MATCH (m:Movie { title: $title }), (u:User { email: $email })
+		await session.run(
+			`MATCH (m:Movie { id: $movieId }), (u:User { id: $userId })
             MERGE (m)<-[r:RATED]-(u)
-            SET r.rating = $rating
-            RETURN m.title as title, r.rating as rating`,
-			{ title, email, rating }
+            SET r.rating = $rating`,
+			{ userId, movieId, rating }
 		);
-		return result.records.map((record) => ({
-			title: record.get('title'),
-			rating: record.get('rating'),
-		}));
+		return { message: 'Movie has been rated' };
 	} catch (err) {
 		throw new Error(err);
 	}

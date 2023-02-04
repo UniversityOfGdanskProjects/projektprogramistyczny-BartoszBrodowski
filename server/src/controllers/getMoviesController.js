@@ -35,7 +35,7 @@ exports.getMoviesSearch = async (title, genre, actor, sort) => {
 			`MATCH (g:Genre)<-[t:TYPE]-(m:Movie)<-[r:RATED]-(u:User), 
 			(m)<-[a:ACTED_IN]-(p:Person), 
 			(m)<-[d:DIRECTED]-(director:Person)
-		    WHERE (m.title =~ '(?i).*${title}.*') 
+		    WHERE (m.title =~ '(?i).*${title}.*')
 			AND (g.name =~ '(?i).*${genre}.*') 
 			AND (p.name =~ '(?i).*${actor}.*')
 			WITH m.title as title, g.name as genre, avg(r.rating) as ratings, collect(DISTINCT p.name) as actors, m.poster_image as poster, m.tagline as tagline, m.released as released, collect(DISTINCT director.name) as directors

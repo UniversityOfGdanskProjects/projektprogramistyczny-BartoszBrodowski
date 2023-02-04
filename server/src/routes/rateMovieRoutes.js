@@ -4,8 +4,8 @@ const { rateMovie } = require('../controllers/rateMovieController');
 const router = express.Router();
 router.post('/', async (req, res) => {
 	try {
-		const { title, email, rating } = req.body;
-		const response = await rateMovie(title, email, rating);
+		const { movieId, userId, rating } = req.body;
+		const response = await rateMovie(movieId, userId, rating);
 		return res.status(200).json(response);
 	} catch (err) {
 		console.error(err.message);
