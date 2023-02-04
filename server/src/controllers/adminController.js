@@ -29,6 +29,19 @@ exports.deleteUser = async (id, userRole) => {
 	}
 };
 
+exports.deleteMovie = async (movieId, userRole) => {
+	try {
+		if (userRole === 'ADMIN') {
+			await session.run(`MATCH (m:Movie { id: $movieId }) DETACH DELETE m`, { movieId });
+			return { message: 'Movie has been deleted' };
+		} else {
+			throw new Error('You are not authorized to delete movies');
+		}
+	} catch (err) {
+		throw new Error(err);
+	}
+};
+
 exports.deleteComment = async (comment_id, user_id, userRole) => {
 	try {
 		if (userRole === 'ADMIN') {
@@ -41,19 +54,6 @@ exports.deleteComment = async (comment_id, user_id, userRole) => {
 			return { message: `Comment with id: ${comment_id} has been deleted` };
 		} else {
 			return Error('You are not authorized to delete this comment');
-		}
-	} catch (err) {
-		throw new Error(err);
-	}
-};
-
-exports.deleteMovie = async (movieId, userRole) => {
-	try {
-		if (userRole === 'ADMIN') {
-			await session.run(`MATCH (m:Movie { id: $movieId }) DETACH DELETE m`, { movieId });
-			return { message: 'Movie has been deleted' };
-		} else {
-			throw new Error('You are not authorized to delete movies');
 		}
 	} catch (err) {
 		throw new Error(err);
@@ -138,6 +138,57 @@ exports.adminUpdateComment = async (userId, commentId, comment) => {
 				return { message: 'Comment has been updated' };
 			} else {
 				return { message: 'You are not authorized to update comments' };
+			}
+		}
+		return Error('User not found');
+	} catch (err) {
+		throw new Error(err);
+	}
+};
+
+exports.adminAddMovie = async (
+	userId,
+	poster_image,
+	released,
+	tagline,
+	title,
+	directors,
+	actors,
+	genre
+) => {
+	try {
+		const user = await session.run('MATCH (u:User { id: $userId }) RETURN u', { userId });
+		if (user) {
+			if (user.records[0]._fields[0].properties.role === 'ADMIN') {
+				await session.run(
+					`CREATE (m:Movie { id: apoc.create.uuid(), poster_image: $poster_image, released: $released, tagline: $tagline, title: $title, addedBy: $userId })
+						WITH m
+						UNWIND $directors AS director
+						MERGE (d:Person { name: director })
+						MERGE (m)<-[:DIRECTED]-(d)
+						WITH m
+						UNWIND $actors AS actor
+						MERGE (a:Person { name: actor })
+						MERGE (m)<-[:ACTED_IN]-(a)
+						WITH m
+						UNWIND $genre AS genre
+						MERGE (g:Genre { name: genre })
+						MERGE (m)-[:TYPE]->(g)
+						RETURN m`,
+					{
+						userId,
+						poster_image,
+						released,
+						tagline,
+						title,
+						directors,
+						actors,
+						genre,
+					}
+				);
+				return { message: 'Movie has been added' };
+			} else {
+				return { message: 'You are not authorized to add movies' };
 			}
 		}
 		return Error('User not found');

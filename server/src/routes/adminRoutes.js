@@ -5,6 +5,7 @@ const {
 	deleteComment,
 	adminUpdateMovie,
 	adminUpdateComment,
+	adminAddMovie,
 } = require('../controllers/adminController');
 
 const router = express.Router();
@@ -77,6 +78,27 @@ router.put('/edit/comment', async (req, res) => {
 	try {
 		const { userId, commentId, comment } = req.body;
 		const response = await adminUpdateComment(userId, commentId, comment);
+		return res.status(200).json(response);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json(err.message);
+	}
+});
+
+router.post('/add/movie', async (req, res) => {
+	try {
+		const { userId, poster_image, released, tagline, title, directors, actors, genre } =
+			req.body;
+		const response = await adminAddMovie(
+			userId,
+			poster_image,
+			released,
+			tagline,
+			title,
+			directors,
+			actors,
+			genre
+		);
 		return res.status(200).json(response);
 	} catch (err) {
 		console.error(err.message);
