@@ -196,3 +196,25 @@ exports.adminAddMovie = async (
 		throw new Error(err);
 	}
 };
+
+exports.adminAddComment = async (userId, movieId, comment) => {
+	try {
+		const user = await session.run('MATCH (u:User { id: $userId }) RETURN u', { userId });
+		if (user) {
+			if (user.records[0]._fields[0].properties.role === 'ADMIN') {
+				await session.run(
+					`MATCH (u:User { id: $userId }), (m:Movie { id: $movieId })
+					CREATE (u)-[c:COMMENTED { id: apoc.create.uuid(), comment: $comment }]->(m)
+					RETURN c`,
+					{ userId, movieId, comment }
+				);
+				return { message: 'Comment has been added' };
+			} else {
+				return { message: 'You are not authorized to add comments as ADMIN user' };
+			}
+		}
+		return Error('User not found');
+	} catch (err) {
+		throw new Error(err);
+	}
+};

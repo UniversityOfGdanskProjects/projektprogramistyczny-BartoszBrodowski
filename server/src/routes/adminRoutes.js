@@ -6,6 +6,7 @@ const {
 	adminUpdateMovie,
 	adminUpdateComment,
 	adminAddMovie,
+	adminAddComment,
 } = require('../controllers/adminController');
 
 const router = express.Router();
@@ -99,6 +100,17 @@ router.post('/add/movie', async (req, res) => {
 			actors,
 			genre
 		);
+		return res.status(200).json(response);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json(err.message);
+	}
+});
+
+router.post('/add/comment', async (req, res) => {
+	try {
+		const { userId, movieId, comment } = req.body;
+		const response = await adminAddComment(userId, movieId, comment);
 		return res.status(200).json(response);
 	} catch (err) {
 		console.error(err.message);
