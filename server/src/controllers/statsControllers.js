@@ -100,3 +100,21 @@ exports.getAmountOfDirectors = async () => {
 		throw new Error(err);
 	}
 };
+
+exports.getOldestActorInDatabase = async () => {
+	try {
+		const result = await session.run(
+			`MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+			RETURN p
+			ORDER BY p.born
+			LIMIT 1`
+		);
+		return result.records.map((record) => ({
+			name: record.get('p').properties.name,
+			born: record.get('p').properties.born.low,
+			popularity: record.get('p').properties.popularity,
+		}))[0];
+	} catch (err) {
+		throw new Error(err);
+	}
+};

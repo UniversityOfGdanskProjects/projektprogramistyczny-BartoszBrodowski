@@ -9,6 +9,7 @@ const {
 	getAmountOfMovies,
 	getAmountOfActors,
 	getAmountOfDirectors,
+	getOldestActorInDatabase,
 } = require('../controllers/statsControllers');
 
 const router = express.Router();
@@ -43,7 +44,7 @@ router.post('/directors', async (req, res) => {
 	}
 });
 
-router.get('/movie/oldest', async (req, res) => {
+router.get('/movies/oldest', async (req, res) => {
 	try {
 		const response = await getOldestMovieInDatabase();
 		return res.status(200).json(response);
@@ -86,6 +87,16 @@ router.get('/actors/amount', async (req, res) => {
 router.get('/directors/amount', async (req, res) => {
 	try {
 		const response = await getAmountOfDirectors();
+		return res.status(200).json(response);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json(err.message);
+	}
+});
+
+router.get('/actors/oldest', async (req, res) => {
+	try {
+		const response = await getOldestActorInDatabase();
 		return res.status(200).json(response);
 	} catch (err) {
 		console.error(err.message);

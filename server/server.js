@@ -11,6 +11,7 @@ const comementMovieRoutes = require('./src/routes/commentsRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const actorRoutes = require('./src/routes/actorsRoutes');
 const statsRoutes = require('./src/routes/statsRoutes');
+const verifyToken = require('./src/middleware/authMiddleware');
 
 const app = express();
 
@@ -18,15 +19,15 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-app.use('/movies/top', topMovieRoutes);
-app.use('/movies', getMoviesRoutes);
 app.use('/auth', authRoutes);
-app.use('/rate', rateRoutes);
-app.use('/user/movie', userMovieRoutes);
-app.use('/comment', comementMovieRoutes);
-app.use('/admin', adminRoutes);
-app.use('/actors', actorRoutes);
-app.use('/stats', statsRoutes);
+app.use('/movies/top', topMovieRoutes);
+app.use('/movies', verifyToken, getMoviesRoutes);
+app.use('/rate', verifyToken, rateRoutes);
+app.use('/user/movie', verifyToken, userMovieRoutes);
+app.use('/comment', verifyToken, comementMovieRoutes);
+app.use('/admin', verifyToken, adminRoutes);
+app.use('/actors', verifyToken, actorRoutes);
+app.use('/stats', verifyToken, statsRoutes);
 
 app.listen(8000, () => {
 	console.log('Server is running on port 8000');

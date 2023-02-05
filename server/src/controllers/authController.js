@@ -11,6 +11,10 @@ exports.login = async (email, password) => {
 		}
 		const user = doesExist.records[0]._fields[0].properties;
 		const comparePassword = await bcrypt.compare(password, user.password);
+		// const comparePassword = await session.run(
+		// 	`MATCH (u:User { email: $email }) RETURN apoc.hashing.fingerprint($password) = u.password`,
+		// 	{ email, password }
+		// );
 		if (!comparePassword) {
 			throw new Error('Password is incorrect');
 		}
@@ -31,7 +35,6 @@ exports.register = async (firstName, lastName, email, password) => {
 		}
 		await session.run(
 			`CALL apoc.create.node(["User"], { id: apoc.create.uuid(), name: $firstName, last_name: $lastName, email: $email, password: $password, role: "USER" })`,
-			//'CREATE (u:User { id: apoc.create.uuid(), name: $firstName, last_name: $lastName, email: $email, password: $password, role: "USER" }) RETURN u',
 			{ firstName, lastName, email, password }
 		);
 		return { message: 'User has been created' };
