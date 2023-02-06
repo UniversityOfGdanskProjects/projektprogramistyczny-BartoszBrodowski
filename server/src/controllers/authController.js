@@ -11,10 +11,6 @@ exports.login = async (email, password) => {
 		}
 		const user = doesExist.records[0]._fields[0].properties;
 		const comparePassword = await bcrypt.compare(password, user.password);
-		// const comparePassword = await session.run(
-		// 	`MATCH (u:User { email: $email }) RETURN apoc.hashing.fingerprint($password) = u.password`,
-		// 	{ email, password }
-		// );
 		if (!comparePassword) {
 			throw new Error('Password is incorrect');
 		}

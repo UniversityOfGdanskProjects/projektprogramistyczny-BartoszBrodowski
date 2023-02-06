@@ -12,7 +12,7 @@ exports.getMovies = () => {
 			WITH m, ratings, g, collect(p.name) as actors
 			MATCH (m)<-[d:DIRECTED]-(director:Person)
 			WITH m, ratings, g, actors, collect(director.name) as directors
-			RETURN DISTINCT m.title as title, m.poster_image as poster, m.tagline as tagline, m.released as released, g.name as genre, apoc.coll.sort(actors) as actors, apoc.coll.sort(directors) as directors, ratings ORDER BY title DESC`
+			RETURN DISTINCT m.title as title, m.poster_image as poster, m.tagline as tagline, m.released as released, g.name as genre, apoc.coll.sort(actors) as actors, apoc.coll.sort(directors) as directors, ratings, m.tmdbLink as tmdbLink ORDER BY title DESC`
 			)
 			.then((result) => {
 				const movies = result.records.map((record) => ({
@@ -24,6 +24,7 @@ exports.getMovies = () => {
 					actors: record.get('actors'),
 					director: record.get('directors'),
 					rating: record.get('ratings'),
+					tmdbLink: record.get('tmdbLink'),
 				}));
 				resolve(movies);
 			})
@@ -42,8 +43,8 @@ exports.getMoviesSearch = async (title, genre, actor, sort) => {
 		    WHERE (m.title =~ '(?i).*${title}.*')
 			AND (g.name =~ '(?i).*${genre}.*') 
 			AND (p.name =~ '(?i).*${actor}.*')
-			WITH m.title as title, g.name as genre, avg(r.rating) as ratings, collect(DISTINCT p.name) as actors, m.poster_image as poster, m.tagline as tagline, m.released as released, collect(DISTINCT director.name) as directors
-		    RETURN title, genre, ratings, apoc.coll.sort(actors) as actors, poster, tagline, released, apoc.coll.sort(directors) as directors ORDER BY ${
+			WITH m, m.title as title, g.name as genre, avg(r.rating) as ratings, collect(DISTINCT p.name) as actors, m.poster_image as poster, m.tagline as tagline, m.released as released, collect(DISTINCT director.name) as directors
+		    RETURN title, genre, ratings, apoc.coll.sort(actors) as actors, poster, tagline, released, apoc.coll.sort(directors) as directors, m.tmdbLink as tmdbLink ORDER BY ${
 				sort == '' ? 'ratings' : sort.toLowerCase()
 			} DESC`
 		);
@@ -56,6 +57,7 @@ exports.getMoviesSearch = async (title, genre, actor, sort) => {
 			actors: record.get('actors'),
 			director: record.get('directors'),
 			rating: record.get('ratings'),
+			tmdbLink: record.get('tmdbLink'),
 		}));
 		return movies;
 	} catch (err) {
@@ -75,7 +77,7 @@ exports.filterByReleaseDate = async (start, end) => {
 			WITH m, ratings, g, collect(p.name) as actors
 			MATCH (m)<-[d:DIRECTED]-(director:Person)
 			WITH m, ratings, g, actors, collect(director.name) as directors
-			RETURN DISTINCT m.title as title, m.poster_image as poster, m.tagline as tagline, m.released as released, g.name as genre, apoc.coll.sort(actors) as actors, apoc.coll.sort(directors) as directors, ratings ORDER BY title DESC`,
+			RETURN DISTINCT m.title as title, m.poster_image as poster, m.tagline as tagline, m.released as released, g.name as genre, apoc.coll.sort(actors) as actors, apoc.coll.sort(directors) as directors, ratings, m.tmdbLink as tmdbLink ORDER BY title DESC`,
 			{ start, end }
 		);
 		const movies = result.records.map((record) => ({
@@ -87,6 +89,7 @@ exports.filterByReleaseDate = async (start, end) => {
 			actors: record.get('actors'),
 			director: record.get('directors'),
 			rating: record.get('ratings'),
+			tmdbLink: record.get('tmdbLink'),
 		}));
 		return movies;
 	} catch (err) {

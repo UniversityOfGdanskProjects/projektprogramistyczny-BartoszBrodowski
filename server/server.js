@@ -11,6 +11,7 @@ const comementMovieRoutes = require('./src/routes/commentsRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const actorRoutes = require('./src/routes/actorsRoutes');
 const statsRoutes = require('./src/routes/statsRoutes');
+const genreRoutes = require('./src/routes/genreRoutes');
 const verifyToken = require('./src/middleware/authMiddleware');
 
 const app = express();
@@ -23,6 +24,7 @@ app.use('/actors', verifyToken, actorRoutes);
 app.use('/admin', verifyToken, adminRoutes);
 app.use('/auth', authRoutes);
 app.use('/comment', verifyToken, comementMovieRoutes);
+app.use('/genres', verifyToken, genreRoutes);
 app.use('/movies', verifyToken, getMoviesRoutes);
 app.use('/rate', verifyToken, rateRoutes);
 app.use('/stats', verifyToken, statsRoutes);

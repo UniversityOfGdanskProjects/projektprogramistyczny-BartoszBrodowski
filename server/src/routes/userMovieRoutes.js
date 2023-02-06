@@ -5,8 +5,17 @@ const router = express.Router();
 
 router.post('/', async (req, res) => {
 	try {
-		const { userId, poster_image, released, tagline, title, directors, actors, genre } =
-			req.body;
+		const {
+			userId,
+			poster_image,
+			released,
+			tagline,
+			title,
+			directors,
+			actors,
+			genre,
+			tmdbLink,
+		} = req.body;
 		const response = await addMovie(
 			userId,
 			poster_image,
@@ -15,7 +24,8 @@ router.post('/', async (req, res) => {
 			title,
 			directors,
 			actors,
-			genre
+			genre,
+			tmdbLink
 		);
 		return res.status(200).json(response);
 	} catch (err) {
@@ -35,7 +45,7 @@ router.delete('/', async (req, res) => {
 	}
 });
 
-router.put('/edit', async (req, res) => {
+router.put('/', async (req, res) => {
 	try {
 		const {
 			userId,
@@ -47,6 +57,7 @@ router.put('/edit', async (req, res) => {
 			directors,
 			actors,
 			genre,
+			tmdbLink,
 		} = req.body;
 		const response = await updateMovie(
 			userId,
@@ -57,7 +68,8 @@ router.put('/edit', async (req, res) => {
 			title,
 			directors,
 			actors,
-			genre
+			genre,
+			tmdbLink
 		);
 		return res.status(200).json(response);
 	} catch (err) {

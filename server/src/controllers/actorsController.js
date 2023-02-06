@@ -14,24 +14,20 @@ exports.getActorsLatestMovie = async (id) => {
 	}
 };
 
-exports.updateActorsOnMovie = async (movieId, actorsList) => {
-	try {
-		const movie = await session.run('MATCH (m:Movie { id: $movieId }) RETURN m', { movieId });
-		if (movie.records[0]) {
-			await session.run(
-				`MATCH (m:Movie { id: $movieId })-[a:ACTED_IN]-(act:Person)
-				DETACH DELETE a
-				WITH m
-				UNWIND $actorsList AS actor
-				MERGE (newActor:Person { name: actor })
-				MERGE (m)<-[:ACTED_IN]-(newActor)`,
-				{ movieId, actorsList }
-			);
-			return { message: "Actors' list has been updated" };
-		} else {
-			return { message: "Movie doesn't exist" };
-		}
-	} catch (err) {
-		throw new Error(err);
-	}
+exports.updateActor = async (id, name, born, popularity, profile_image) => {
+	return new Promise((resolve, reject) => {
+		session
+			.run(
+				`MATCH (p:Person { id: '${id}' })
+				SET p.name = '${name}', p.born = '${born}', p.popularity = '${popularity}', p.profile_image = '${profile_image}'
+				RETURN p
+				`
+			)
+			.then((result) => {
+				resolve(result);
+			})
+			.catch((err) => {
+				reject(err);
+			});
+	});
 };

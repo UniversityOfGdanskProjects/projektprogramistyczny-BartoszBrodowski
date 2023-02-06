@@ -8,7 +8,8 @@ exports.addMovie = async (
 	title,
 	directors,
 	actors,
-	genre
+	genre,
+	tmdbLink
 ) => {
 	try {
 		const user = await session.run('MATCH (u:User { id: $userId }) RETURN u', { userId });
@@ -31,7 +32,17 @@ exports.addMovie = async (
                 MERGE (g:Genre { name: genre })
                 MERGE (m)-[:TYPE]->(g)
                 RETURN m`,
-				{ userId, poster_image, released, tagline, title, directors, actors, genre }
+				{
+					userId,
+					poster_image,
+					released,
+					tagline,
+					title,
+					directors,
+					actors,
+					genre,
+					tmdbLink,
+				}
 			);
 			return { message: 'Movie has been added' };
 		}
@@ -55,7 +66,7 @@ exports.deleteMovie = async (userId, movieId) => {
 			if (result) {
 				return { message: 'Movie has been deleted' };
 			} else {
-				return Error('Movie not found');
+				return { message: 'Cannot delete that movie' };
 			}
 		}
 		return Error('User not found');
@@ -73,7 +84,8 @@ exports.updateMovie = async (
 	title,
 	directors,
 	actors,
-	genre
+	genre,
+	tmdbLink
 ) => {
 	try {
 		const user = await session.run('MATCH (u:User { id: $userId }) RETURN u', { userId });
@@ -113,6 +125,7 @@ exports.updateMovie = async (
 					directors,
 					actors,
 					genre,
+					tmdbLink,
 				}
 			);
 			const movie = result.summary.query.parameters;

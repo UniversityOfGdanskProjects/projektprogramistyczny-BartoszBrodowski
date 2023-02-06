@@ -1,12 +1,22 @@
 const express = require('express');
-const { commentMovie, deleteComment } = require('../controllers/commentsController');
+const { addGenre, deleteGenre, getAllGenres } = require('../controllers/genreController');
 
 const router = express.Router();
 
+router.get('/', async (req, res) => {
+	try {
+		const response = await getAllGenres();
+		res.status(200).json(response);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json(err.message);
+	}
+});
+
 router.post('/', async (req, res) => {
 	try {
-		const { movieId, userId, comment } = req.body;
-		const response = await commentMovie(movieId, userId, comment);
+		const { name } = req.body;
+		const response = await addGenre(name);
 		return res.status(200).json(response);
 	} catch (err) {
 		console.error(err.message);
@@ -16,8 +26,8 @@ router.post('/', async (req, res) => {
 
 router.delete('/', async (req, res) => {
 	try {
-		const { commentId, userId } = req.body;
-		const response = await deleteComment(commentId, userId);
+		const { genreId } = req.body;
+		const response = await deleteGenre(genreId);
 		return res.status(200).json(response);
 	} catch (err) {
 		console.error(err.message);

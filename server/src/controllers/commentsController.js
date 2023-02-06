@@ -25,8 +25,8 @@ exports.commentMovie = async (movieId, userId, comment) => {
 exports.deleteComment = async (commentId, userId) => {
 	try {
 		await session.run(
-			`MATCH (m:Movie)<-[c:COMMENTED]-(u:User { id: $userId }})
-			WHERE c.id = $comment_id
+			`MATCH (m:Movie)<-[c:COMMENTED]-(u:User { id: $userId })
+			WHERE c.id = $commentId
 			DETACH DELETE c`,
 			{ commentId, userId }
 		);

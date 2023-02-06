@@ -24,8 +24,8 @@ router.post('/register', async (req, res) => {
 
 router.delete('/delete/user', async (req, res) => {
 	try {
-		const { userId, userRole } = req.body;
-		const response = await deleteUser(userId, userRole);
+		const { userId, deleteId } = req.body;
+		const response = await deleteUser(userId, deleteId);
 		return res.status(200).json(response);
 	} catch (err) {
 		console.error(err.message);
@@ -35,8 +35,8 @@ router.delete('/delete/user', async (req, res) => {
 
 router.delete('/delete/comment', async (req, res) => {
 	try {
-		const { comment_id, user_id, role } = req.body;
-		const response = await deleteComment(comment_id, user_id, role);
+		const { commentId, userId } = req.body;
+		const response = await deleteComment(commentId, userId);
 		return res.status(200).json(response);
 	} catch (err) {
 		console.error(err.message);

@@ -16,13 +16,14 @@ exports.register = async (firstName, lastName, email, password) => {
 	}
 };
 
-exports.deleteUser = async (id, userRole) => {
+exports.deleteUser = async (userId, deleteId) => {
 	try {
-		if (userRole === 'ADMIN') {
-			await session.run(`MATCH (u:User { id: $id }) DETACH DELETE u`, { id });
+		const user = await session.run(`MATCH (u:User { id: '${userId}' }) RETURN u`);
+		if (user.records[0]._fields[0].properties.role === 'ADMIN') {
+			await session.run(`MATCH (u:User { id: '${deleteId}' }) DETACH DELETE u`);
 			return { message: 'User has been deleted' };
 		} else {
-			throw new Error('You are not authorized to delete users');
+			return { message: 'You are not authorized to delete users' };
 		}
 	} catch (err) {
 		throw new Error(err);
@@ -42,16 +43,17 @@ exports.deleteMovie = async (movieId, userRole) => {
 	}
 };
 
-exports.deleteComment = async (comment_id, user_id, userRole) => {
+exports.deleteComment = async (commentId, userId) => {
 	try {
-		if (userRole === 'ADMIN') {
+		const user = await session.run(`MATCH (u:User { id: '${userId}' }) RETURN u`);
+		console.log(user);
+		if (user.records[0]._fields[0].properties.role === 'ADMIN') {
 			await session.run(
-				`MATCH (m:Movie)<-[c:COMMENTED]-(u:User { id: $user_id }})
-				WHERE c.id = $comment_id
-				DETACH DELETE c`,
-				{ comment_id, user_id }
+				`MATCH (m:Movie)<-[c:COMMENTED]-(u:User)
+				WHERE c.id = '${commentId}'
+				DETACH DELETE c`
 			);
-			return { message: `Comment with id: ${comment_id} has been deleted` };
+			return { message: `Comment with id: ${commentId} has been deleted` };
 		} else {
 			return Error('You are not authorized to delete this comment');
 		}
@@ -76,8 +78,8 @@ exports.adminUpdateMovie = async (
 		if (user.records[0]) {
 			if (user.records[0]._fields[0].properties.role === 'ADMIN') {
 				await session.run(
-					`MATCH (m:Movie { id: $movieId, addedBy: $userId })
-					SET m.poster_image = $poster_image, m.released = $released, m.tagline = $tagline
+					`MATCH (m:Movie { id: $movieId })
+					SET m.poster_image = $poster_image, m.released = $released, m.tagline = $tagline, m.title = $title
 					WITH m
 					MATCH (m)-[dir:DIRECTED]-()
 					DETACH DELETE dir
