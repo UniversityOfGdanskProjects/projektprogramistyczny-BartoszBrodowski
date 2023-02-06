@@ -7,14 +7,15 @@ const {
 
 const router = express.Router();
 
-router.get('/all', async (req, res) => {
-	try {
-		const response = await getMovies();
-		return res.status(200).json(response);
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).json(err.message);
-	}
+router.get('/all', (req, res) => {
+	getMovies()
+		.then((response) => {
+			return res.status(200).json(response);
+		})
+		.catch((err) => {
+			console.log(err);
+			return res.status(500).json(err);
+		});
 });
 
 router.get('/all/search', async (req, res) => {

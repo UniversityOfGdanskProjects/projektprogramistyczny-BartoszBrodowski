@@ -1,9 +1,10 @@
 const session = require('../config/connector');
 
-exports.getMovies = async () => {
-	try {
-		const result = await session.run(
-			`MATCH (m:Movie)<-[r:RATED]-(u:User)
+exports.getMovies = () => {
+	return new Promise((resolve, reject) => {
+		session
+			.run(
+				`MATCH (m:Movie)<-[r:RATED]-(u:User)
 			WITH m, collect(r.rating) as ratings
 			MATCH (m)-[t:TYPE]->(g:Genre)
 			WITH m, ratings, g
@@ -12,21 +13,24 @@ exports.getMovies = async () => {
 			MATCH (m)<-[d:DIRECTED]-(director:Person)
 			WITH m, ratings, g, actors, collect(director.name) as directors
 			RETURN DISTINCT m.title as title, m.poster_image as poster, m.tagline as tagline, m.released as released, g.name as genre, apoc.coll.sort(actors) as actors, apoc.coll.sort(directors) as directors, ratings ORDER BY title DESC`
-		);
-		const movies = result.records.map((record) => ({
-			title: record.get('title'),
-			poster: record.get('poster'),
-			tagline: record.get('tagline'),
-			released: record.get('released'),
-			genre: record.get('genre'),
-			actors: record.get('actors'),
-			director: record.get('directors'),
-			rating: record.get('ratings'),
-		}));
-		return movies;
-	} catch (err) {
-		throw new Error(err);
-	}
+			)
+			.then((result) => {
+				const movies = result.records.map((record) => ({
+					title: record.get('title'),
+					poster: record.get('poster'),
+					tagline: record.get('tagline'),
+					released: record.get('released'),
+					genre: record.get('genre'),
+					actors: record.get('actors'),
+					director: record.get('directors'),
+					rating: record.get('ratings'),
+				}));
+				resolve(movies);
+			})
+			.catch((err) => {
+				reject(err);
+			});
+	});
 };
 
 exports.getMoviesSearch = async (title, genre, actor, sort) => {
