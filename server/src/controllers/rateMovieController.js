@@ -5,7 +5,9 @@ exports.rateMovie = async (movieId, userId, rating) => {
 		await session.run(
 			`MATCH (m:Movie { id: $movieId }), (u:User { id: $userId })
             MERGE (m)<-[r:RATED]-(u)
-            SET r.rating = $rating`,
+			WITH m, r 
+            CALL apoc.create.setRelProperty(r, "rating", $rating) YIELD rel
+			RETURN rel`,
 			{ userId, movieId, rating }
 		);
 		return { message: 'Movie has been rated' };

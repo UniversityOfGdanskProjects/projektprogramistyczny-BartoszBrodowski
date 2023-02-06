@@ -19,15 +19,15 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/actors', verifyToken, actorRoutes);
+app.use('/admin', verifyToken, adminRoutes);
 app.use('/auth', authRoutes);
-app.use('/movies/top', topMovieRoutes);
+app.use('/comment', verifyToken, comementMovieRoutes);
 app.use('/movies', verifyToken, getMoviesRoutes);
 app.use('/rate', verifyToken, rateRoutes);
-app.use('/user/movie', verifyToken, userMovieRoutes);
-app.use('/comment', verifyToken, comementMovieRoutes);
-app.use('/admin', verifyToken, adminRoutes);
-app.use('/actors', verifyToken, actorRoutes);
 app.use('/stats', verifyToken, statsRoutes);
+app.use('/movies/top', topMovieRoutes);
+app.use('/user/movie', verifyToken, userMovieRoutes);
 
 app.listen(8000, () => {
 	console.log('Server is running on port 8000');
