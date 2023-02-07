@@ -25,6 +25,20 @@ router.post('/register', async (req, res) => {
 router.delete('/delete/user', async (req, res) => {
 	try {
 		const { userId, deleteId } = req.body;
+		if (
+			!userId.match(
+				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+			)
+		) {
+			return res.status(400).json('Invalid user id');
+		}
+		if (
+			!deleteId.match(
+				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+			)
+		) {
+			return res.status(400).json('Invalid user to delete id');
+		}
 		const response = await deleteUser(userId, deleteId);
 		return res.status(200).json(response);
 	} catch (err) {
