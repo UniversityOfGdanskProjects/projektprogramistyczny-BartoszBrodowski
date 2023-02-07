@@ -21,7 +21,7 @@ exports.getActorsLatestMovie = async (id) => {
 	}
 };
 
-exports.updateActor = async (id, name, born, popularity, profile_image) => {
+exports.updateActor = (id, name, born, popularity, profile_image) => {
 	return new Promise((resolve, reject) => {
 		session
 			.run(
