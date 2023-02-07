@@ -2,13 +2,20 @@ const session = require('../config/connector');
 
 exports.getActorsLatestMovie = async (id) => {
 	try {
-		const result = await session.run(
-			`MATCH (p:Person { id: $id })-[:ACTED_IN]->(m:Movie)
-            WITH p, m
-            RETURN p.name AS person, apoc.agg.last(m) AS latestMovie`,
-			{ id }
+		const actor = await session.run(
+			`MATCH (p:Person { id: '${id}' })-[r:ACTED_IN]->(m:Movie) RETURN p,r,m`
 		);
-		return result.records[0].get('latestMovie').properties;
+		if (actor.records[0]) {
+			const result = await session.run(
+				`MATCH (p:Person { id: $id })-[:ACTED_IN]->(m:Movie)
+				WITH p, m
+				RETURN p.name AS person, apoc.agg.last(m) AS latestMovie`,
+				{ id }
+			);
+			return result.records[0].get('latestMovie').properties;
+		} else {
+			return { error: 'Actor not found' };
+		}
 	} catch (err) {
 		throw new Error(err);
 	}
@@ -24,10 +31,33 @@ exports.updateActor = async (id, name, born, popularity, profile_image) => {
 				`
 			)
 			.then((result) => {
-				resolve(result);
+				resolve({
+					message: 'Actor has been updated',
+					data: result.records[0].get('p').properties,
+				});
 			})
 			.catch((err) => {
-				reject(err);
+				reject({ error: err });
 			});
 	});
+};
+
+exports.deleteActor = async (id) => {
+	try {
+		const actor = await session.run(
+			`MATCH (p:Person { id: '${id}' })-[r:ACTED_IN]->(m:Movie) RETURN p,r,m`
+		);
+		if (actor.records[0]) {
+			await session.run(
+				`MATCH (p:Person { id: '${id}' })-[r:ACTED_IN]->(m:Movie)
+				DETACH DELETE p, r
+				RETURN p`
+			);
+			return { message: `Actor with id: ${id} has been deleted` };
+		} else {
+			return { error: 'Actor not found' };
+		}
+	} catch (err) {
+		throw new Error(err);
+	}
 };

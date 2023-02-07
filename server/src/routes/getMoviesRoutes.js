@@ -32,6 +32,8 @@ router.get('/all/search', async (req, res) => {
 router.get('/all/filter/:start/:end', async (req, res) => {
 	try {
 		const { start, end } = req.params;
+		if (start > end) return res.status(400).json('Start date cannot be greater than end date');
+		if (start < 1800) return res.status(400).json('Start cannot be less than 1800');
 		const response = await filterByReleaseDate(start, end);
 		return res.status(200).json(response);
 	} catch (err) {

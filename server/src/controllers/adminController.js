@@ -46,7 +46,6 @@ exports.deleteMovie = async (movieId, userRole) => {
 exports.deleteComment = async (commentId, userId) => {
 	try {
 		const user = await session.run(`MATCH (u:User { id: '${userId}' }) RETURN u`);
-		console.log(user);
 		if (user.records[0]._fields[0].properties.role === 'ADMIN') {
 			await session.run(
 				`MATCH (m:Movie)<-[c:COMMENTED]-(u:User)
