@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "neo4j-driver": "^5.4.0",
+    "swagger-autogen": "^2.23.0",
+    "swagger-ui-express": "^4.6.0"
+  },
+  "devDependencies": {
+    "dotenv": "^16.0.3",
+    "nodemon": "^2.0.20"
+  }
+}
